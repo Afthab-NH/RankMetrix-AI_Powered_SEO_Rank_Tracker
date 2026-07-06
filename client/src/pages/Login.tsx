@@ -1,16 +1,40 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, redirect, useNavigate, useSearchParams } from "react-router-dom";
 import { Mail, Lock, Loader2, ChartNoAxesColumnIcon, User2Icon } from "lucide-react";
+import { useApp } from "../context/AppContext";
+import toast from "react-hot-toast";
 
 export default function Login({ state }: { state: string }) {
     const [isLoginState, setIsLoginState] = useState(state === "login");
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [loading] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const {login, register} = useApp()
+
+    const [searchParams] = useSearchParams()
+    const navigate = useNavigate()
+    
 
     const handleSubmit = async (e: React.SubmitEvent) => {
         e.preventDefault();
+        setLoading(true)
+
+        let result;
+        if(isLoginState){
+            result = await login(email, password)
+        } else {
+            result = await register(name, email, password)
+        }
+
+        if(result.success){
+            const redirect = searchParams.get("redirect") || "/dashboard";
+            navigate(redirect)
+        } else {
+            toast.error(result.message || "Login Failed!")
+        }
+        setLoading(false)
+
     };
 
     return (
@@ -20,7 +44,7 @@ export default function Login({ state }: { state: string }) {
                 <div className="text-center mb-8">
                     <Link to="/" className="flex items-center justify-center gap-2 group mb-10">
                         <ChartNoAxesColumnIcon />
-                        <span className="text-xl tracking-tight text-foreground">Rank Pilot</span>
+                        <span className="text-xl tracking-tight text-foreground">Rank Metrix</span>
                     </Link>
                 </div>
 
