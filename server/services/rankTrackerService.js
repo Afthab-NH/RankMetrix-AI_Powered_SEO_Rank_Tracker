@@ -118,6 +118,7 @@ export async function rankTracker(keyword, targetDomain){
 
     } catch (error){
         console.error("Rank Check Error:", error.message);
-        if(browser) await browser.close().catch
+        if(browser) await browser.close().catch(()=>{})
+            return { success: false, error: error.message }
     }
 } 
