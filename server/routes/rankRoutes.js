@@ -5,8 +5,8 @@ import { addKeyword, deleteKeyword, getKeyword, getKeywords, refreshKeyword, tog
 const rankRouter = express.Router();
 
 rankRouter.post('/add', auth, addKeyword);
-rankRouter.post('/list', auth, getKeywords);
-rankRouter.post('/:id', auth, getKeyword);
+rankRouter.get('/list', auth, getKeywords);
+rankRouter.get('/:id', auth, getKeyword);
 rankRouter.post('/:id/refresh', auth, refreshKeyword);
 rankRouter.put('/:id/toggle', auth, toggleTracking);
 rankRouter.delete('/:id', auth, deleteKeyword);
