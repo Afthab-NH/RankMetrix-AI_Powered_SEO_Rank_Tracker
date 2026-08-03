@@ -19,7 +19,6 @@ export const register = async (req, res) => {
         if(!name || !email || !password) return res.status(400).json({ success: false, message: "All fields are required!" });
 
         //Check if user exists
-
         const existingUser = await User.findOne({email})
         if(existingUser) return res.status(400).json({ success: false, message: "User already Exists!" });
 
