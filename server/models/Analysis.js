@@ -1,5 +1,26 @@
 import mongoose from 'mongoose';
 
+
+const issueSchema = new mongoose.Schema({
+    severity : {
+        type : String,
+        enum : ["critical","warning","info"], 
+        required : true
+    },
+    category : {
+        type : String,
+        required : true
+    },
+    message : {
+        type : String,
+        required : true
+    },
+    recommendation : {
+        type : String,
+        required : true
+    },
+},{_id:false})
+
 const analysisSchema = new mongoose.Schema({
     userId : {
         type : mongoose.Schema.Types.ObjectId,
@@ -98,7 +119,7 @@ const analysisSchema = new mongoose.Schema({
                 density : Number,
             },
         ],
-        issues : [],
+        issues : [issueSchema],
         loadTime : { type : Number, default : 0 },
         pageSize : { type : Number, default : 0 },
         wordCount : { type : Number, default : 0 },
@@ -106,4 +127,9 @@ const analysisSchema = new mongoose.Schema({
             default : "pending"
          },
     }
-})
+},{timestamps:true})
+
+
+const Analysis = mongoose.model('Analysis',analysisSchema)
+
+export default Analysis;
