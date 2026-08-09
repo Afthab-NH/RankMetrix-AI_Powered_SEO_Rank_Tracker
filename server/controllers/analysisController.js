@@ -16,7 +16,11 @@ export const analyseUrl = async (req, res) => {
         }
 
         //Create analysis record with pending status
-        const analysis = await Analysis
+        const analysis = await Analysis.create({userId: req.userId, url: validUrl.href, status: "Processing..."});
+
+        //Send immediate response with analysis ID
+        res.json({ success: true, message: "Analysis Started.", analysisId: analysis._id })
+
     } catch (error) {
         
     }
