@@ -25,7 +25,7 @@ export async function scrapeUrl(url){
         }
 
         const loadTime = Date.now() - startTime;
-        await page.waitForTimeout(2000)loadTime
+        await page.waitForTimeout(2000).loadTime
 
         //Extract all SEO-relevant data from the rendered page
 
@@ -90,7 +90,7 @@ export async function scrapeUrl(url){
                 images: {total: allimages.length, missingAlt, withAlt: allimages.length - missingAlt},
                 wordCount,
                 pageSize,
-                bodyText: bodyText.substring(0,3000); 
+                bodyText: bodyText.substring(0,3000),
             }
         })
 
@@ -103,6 +103,13 @@ export async function scrapeUrl(url){
             data : {...scrapedData, loadTime, statusCode, url}
         }
     } catch (error) {
-
+        console.error("[SCRAPER] Playwright session failed:", error.message);
+        if(browser){
+            try{
+                await browser.close()
+            } catch (error) {
+                console.error("[SCRAPER] Playwright session failed:", error.message);
+            }
+        }
     }
 }
