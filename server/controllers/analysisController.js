@@ -1,4 +1,5 @@
 import Analysis from "../models/Analysis.js";
+import { analyzeSeoData } from "../services/geminiService.js";
 import { scrapeUrl } from "../services/scraperService.js";
 
 
@@ -34,9 +35,30 @@ export const analyseUrl = async (req, res) => {
             }
 
             //Step 2: Analyze with Gemini AI
+            const aiResult = await analyzeSeoData(scrapeResult.data)
 
+            if(!aiResult.success){
+                analysis.status = "failed";
+                await analysis.save()
+                return;
+            }
 
+            //Step 3: Save results
+            analysis.overallScore = aiResult.data.overallScore || 0;
+            analysis.categories = aiResult.data.categories || {};
+            analysis.metaData = scrapeResult.data.metaData || {};
+            analysis.headings = scrapeResult.data.headings || {};
+            analysis.links = scrapeResult.data.links || {};
+            analysis.images = scrapeResult.data.images || {};
+            analysis.keywords = aiResult.data.keywords || [];
+            analysis.issues = aiResult.data.issues || [];
+            analysis.loadTime = scrapeResult.data.loadTime || 0;
+            analysis.pageSize = scrapeResult.data.pageSize || 0;
+            analysis.wordCount = scrapeResult.data.wordCount || 0;
 
+            analysis.status = "completed";
+
+            await analysis.save();
 
         } catch (bgError) {
             console.error("Background analysis Error:", bgError.message);
@@ -62,12 +84,36 @@ export const analyseUrl = async (req, res) => {
 
 //Get analysis by ID
 export const getAnalysis = async (req, res) => {
+    try {
+        const analysis = await Analysis.findOne({_id: req.params.id, userId: req.userId})
 
+        if(!analysis) return res.status(404).json({ success: false, message: "Analysis not found" });
+
+        res.json({ success: true, analysis });
+
+    } catch (error) {
+        console.error("Get Analysis Error:", error.message);
+        res.status(500).json({ success: false, message: "Server error" });
+    }
 }
 
 //Get analysis for all User
-export const getAnalyses = async (req, res) = {
+export const getAnalyses = async (req, res) => {
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const skip = (page - 1) * limit;
 
+        const analysis = await Analysis.findOne({_id: req.params.id, userId: req.userId})
+
+        if(!analysis) return res.status(404).json({ success: false, message: "Analysis not found" });
+
+        res.json({ success: true, analysis });
+
+    } catch (error) {
+        console.error("Get Analysis Error:", error.message);
+        res.status(500).json({ success: false, message: "Server error" });
+    }
 }
 
 //Delete Analysis
