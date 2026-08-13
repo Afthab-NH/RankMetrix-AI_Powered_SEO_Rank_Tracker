@@ -104,11 +104,13 @@ export const getAnalyses = async (req, res) => {
         const limit = parseInt(req.query.limit) || 10;
         const skip = (page - 1) * limit;
 
-        const analysis = await Analysis.findOne({_id: req.params.id, userId: req.userId})
+        const analysis = await (await Analysis.find({ userId: req.userId})).toSorted({ createdAt: -1 }).skip(skip).limit(limit).select("-issues -keywords");
+
+        const total = await Analysis.countDocuments({ userId: req.userId })
 
         if(!analysis) return res.status(404).json({ success: false, message: "Analysis not found" });
 
-        res.json({ success: true, analysis });
+        res.json({ success: true, analysis, pagination: {page, limit, total, pages: Math.ceil (total/limit)} });
 
     } catch (error) {
         console.error("Get Analysis Error:", error.message);
@@ -118,6 +120,14 @@ export const getAnalyses = async (req, res) => {
 
 //Delete Analysis
 export const deleteAnalysis = async (req, res) => {
+    try {
+        await Analysis.findOneAndDelete({_id: req.params.id, userId: req.userId})
 
+        res.json({ success: true, message: "Analysis Deleted" });
+
+    } catch (error) {
+        console.error("Delete Analysis Error:", error.message);
+        res.status(500).json({ success: false, message: "Server error" });
+    }
 }
 

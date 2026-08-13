@@ -4,6 +4,7 @@ import ScoreGauge from "../components/ScoreGauge";
 import IssueCard from "../components/IssueCard";
 import { ArrowLeft, Globe, Clock, FileText, Image, Link2, Heading, Tag, AlertCircle, ExternalLink, Type, Search } from "lucide-react";
 import { dummyWebsiteAnalysis } from "../assets/assets";
+import { useApp } from "../context/AppContext";
 
 interface AnalysisData {
     _id: string;
@@ -56,6 +57,8 @@ interface AnalysisData {
 }
 
 export default function Report() {
+    const {api} = useApp()
+    
     const { id } = useParams();
     const [analysis, setAnalysis] = useState<AnalysisData | null>(null);
     const [loading, setLoading] = useState(true);
