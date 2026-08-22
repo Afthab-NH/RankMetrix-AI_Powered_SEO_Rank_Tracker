@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Clock, Trash2, ExternalLink, Search, AlertCircle, Loader2, Filter, ArrowUpDown } from "lucide-react";
 import ScoreGauge from "../components/ScoreGauge";
-import { dummyAnalysisData } from "../assets/assets";
 import { useApp } from "../context/AppContext";
 
 interface AnalysisItem {
@@ -36,17 +35,26 @@ export default function History() {
         setLoading(true);
         try {
             const res = await api.get(`/api/analysis/list?page=${page}&limit=12`)
-        } catch (error) {
-            
+            if(res.data.success){
+                setAnalyses(res.data.analysis)
+                setTotalPages(res.data.pagination.pages)
+            }
+        } catch (err) {
+            console.error("Failed to fetch: ", err)
         }
+        setLoading(false)
     };
 
     const handleDelete = async (id: string) => {
         if (!confirm("Delete this analysis?")) return;
         setDeleting(id);
-        setTimeout(() => {
-            setDeleting(null);
-        }, 1000);
+        try {
+            await api.delete(`/api/analysis/${id}`);
+            setAnalyses((prev)=>prev.filter((a)=>a._id !== id))
+        } catch (err) {
+            console.error("Failed to delete:",err)
+        }
+        setDeleting(null)
     };
 
     const getScoreClass = (s: number) => {
