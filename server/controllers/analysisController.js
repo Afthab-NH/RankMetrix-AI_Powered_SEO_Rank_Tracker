@@ -18,7 +18,7 @@ export const analyseUrl = async (req, res) => {
         }
 
         //Create analysis record with pending status
-        const analysis = await Analysis.create({userId: req.userId, url: validUrl.href, status: "Processing..."});
+        const analysis = await Analysis.create({userId: req.userId, url: validUrl.href, status: "processing"});
 
         //Send immediate response with analysis ID
         res.json({ success: true, message: "Analysis Started.", analysisId: analysis._id })
@@ -104,7 +104,7 @@ export const getAnalyses = async (req, res) => {
         const limit = parseInt(req.query.limit) || 10;
         const skip = (page - 1) * limit;
 
-        const analysis = await (await Analysis.find({ userId: req.userId})).toSorted({ createdAt: -1 }).skip(skip).limit(limit).select("-issues -keywords");
+        const analysis = await (Analysis.find({ userId: req.userId})).sort({ createdAt: -1 }).skip(skip).limit(limit).select("-issues -keywords");
 
         const total = await Analysis.countDocuments({ userId: req.userId })
 

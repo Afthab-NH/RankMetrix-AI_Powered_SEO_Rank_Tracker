@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Clock, Trash2, ExternalLink, Search, AlertCircle, Loader2, Filter, ArrowUpDown } from "lucide-react";
 import ScoreGauge from "../components/ScoreGauge";
 import { dummyAnalysisData } from "../assets/assets";
+import { useApp } from "../context/AppContext";
 
 interface AnalysisItem {
     _id: string;
@@ -19,6 +20,9 @@ interface AnalysisItem {
 }
 
 export default function History() {
+
+    const {api} = useApp();
+
     const [analyses, setAnalyses] = useState<AnalysisItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [page, setPage] = useState(1);
@@ -30,11 +34,11 @@ export default function History() {
 
     const fetchAnalyses = async () => {
         setLoading(true);
-        setTimeout(() => {
-            setAnalyses(dummyAnalysisData);
-            setTotalPages(1);
-            setLoading(false);
-        }, 1000);
+        try {
+            const res = await api.get(`/api/analysis/list?page=${page}&limit=12`)
+        } catch (error) {
+            
+        }
     };
 
     const handleDelete = async (id: string) => {

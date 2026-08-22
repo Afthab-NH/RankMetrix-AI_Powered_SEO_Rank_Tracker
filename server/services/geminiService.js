@@ -1,4 +1,3 @@
-
 import {GoogleGenAI, Type} from '@google/genai'
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY })
@@ -112,7 +111,7 @@ Provide 5-15 issues sorted by severity (critical first). Be specific and actiona
 Extract top 10 keywords by frequency from the page content.`;
 
         const response = await ai.models.generateContent({
-            model : 'gemma-3-31b-it',
+            model : 'gemini-3.6-flash',
             contents : [{role: "user", parts:[{text: prompt}]}],
             config : {
                 responseMimeType : "application/json",

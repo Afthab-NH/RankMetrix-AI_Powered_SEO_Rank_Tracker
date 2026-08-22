@@ -50,7 +50,7 @@ export default function Analyze() {
 
             //Poll for completion
             let attempts = 0;
-            const maxAttempts = 6;
+            const maxAttempts = 60;
 
             pollRef.current = setInterval(async ()=> {
                 attempts++;
@@ -83,7 +83,7 @@ export default function Analyze() {
                 }
 
 
-            }, 2000)
+            }, 3000)
 
 
         } catch (err: any) {

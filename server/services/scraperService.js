@@ -25,7 +25,7 @@ export async function scrapeUrl(url){
         }
 
         const loadTime = Date.now() - startTime;
-        await page.waitForTimeout(2000).loadTime
+        await page.waitForTimeout(2000);
 
         //Extract all SEO-relevant data from the rendered page
 
@@ -80,7 +80,7 @@ export async function scrapeUrl(url){
             const missingAlt = allimages.filter((img)=> !img.alt || img.alt.trim() === "").length;
 
             const bodyText = document.body?.innerText || "";
-            const wordCount = bodyText.split(/\s+/).filter((w)=>length > 0).length;
+            const wordCount = bodyText.split(/\s+/).filter((w)=>w.length > 0).length;
             const pageSize = document.documentElement.outerHTML.length;
 
             return {
@@ -107,9 +107,10 @@ export async function scrapeUrl(url){
         if(browser){
             try{
                 await browser.close()
-            } catch (error) {
-                console.error("[SCRAPER] Playwright session failed:", error.message);
+            } catch (closeError) {
+                console.error("[SCRAPER] Playwright session failed:", closeError.message);
             }
         }
+        return { success: false, error: error.message };
     }
 }
