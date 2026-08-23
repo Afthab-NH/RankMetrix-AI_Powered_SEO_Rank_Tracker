@@ -21,7 +21,7 @@ const keywordTrackingSchema = new mongoose.Schema({
   keyword: { type: String, required: true, trim: true, lowercase: true },
   url: { type: String, required: true },
   domain: { type: String, required: true },
-  currentposition: { type: Number, default: null },
+  currentPosition: { type: Number, default: null },
   currentPage: { type: Number, default: null },
   bestPosition: { type: Number, default: null },
   positionChange: { type: Number, default: 0 },

@@ -10,16 +10,25 @@ const bb = new Browserbase({
 export async function rankTracker(keyword, targetDomain){
     let browser;
     try{
+        console.log("[rankTracker] Starting for:", keyword, targetDomain);
+
         // 1. Initialize Browserbase Session & Connect Playwright
 
+        console.log("[rankTracker] Creating Browserbase session...");
         const session = await bb.sessions.create({browserSettings: {blockAds: true}});
+        console.log("[rankTracker] Session created:", session.id);
+
         browser = await chromium.connectOverCDP(session.connectUrl);
+        console.log("[rankTracker] Connected to browser");
+
         const page = browser.contexts()[0].pages()[0];
         page.setDefaultNavigationTimeout(45000);
 
         // 2. Initial Google Visit & Consent handling
 
+        console.log("[rankTracker] Navigating to Google...");
         await page.goto("https://www.google.com", {waitUntil: "networkidle"});
+        console.log("[rankTracker] Google loaded");
         try{
             const btn = await page.$('button[id="L2AGLb"], form[action*="consent"] button')
             if(btn){
@@ -36,6 +45,7 @@ export async function rankTracker(keyword, targetDomain){
         // 3. Search Loop: Iterate through up to 5 pages of the google results
 
         for(let gPage = 0; gPage < 5; gPage++){
+            console.log(`[rankTracker] Searching Google page ${gPage + 1}...`);
             await page.goto(
                 `https://www.google.com/search?q=${encodeURIComponent(keyword)}&start=${gPage * 10}&num=10&hl=en&gl=us`,
                 {waitUntil: "networkidle"}
@@ -80,10 +90,13 @@ export async function rankTracker(keyword, targetDomain){
                     if(pageResults.length > 0) break;
                     await page.reload({waitUntil: "networkidle"});
                 } catch (error) {
+                    console.log(`[rankTracker] Extraction retry ${retry + 1} failed:`, error.message);
                     if(retry === 2) break;
                     await page.reload({waitUntil: "networkidle"})
                 }
             }
+
+            console.log(`[rankTracker] Page ${gPage + 1} results found:`, pageResults.length);
 
             if(!pageResults.length) break;
 
@@ -104,6 +117,8 @@ export async function rankTracker(keyword, targetDomain){
 
         //6. Finalization: Close browser and extract competitors
 
+        console.log("[rankTracker] Done searching. Found:", !!found, "Total results:", allResults.length);
+
         await browser.close();
         const competitors = allResults.filter((r)=>!r.domain.toLowerCase().includes(cleanTarget) &&
         !cleanTarget.includes(r.domain.toLowerCase())).slice(0,10);
@@ -123,7 +138,7 @@ export async function rankTracker(keyword, targetDomain){
         }
 
     } catch (error){
-        console.error("Rank Check Error:", error.message);
+        console.error("[rankTracker] Rank Check Error:", error.message);
         if(browser) await browser.close().catch(()=>{})
             return { success: false, error: error.message }
     }
