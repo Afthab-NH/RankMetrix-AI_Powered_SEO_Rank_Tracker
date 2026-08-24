@@ -19,4 +19,5 @@ export function startRankTrackingCron(){
             console.error("[CRON] Rank Tracking cron error:", error.message);
         }
     })
+    console.log("Rank tracking CRON Job scheduled")
 }
